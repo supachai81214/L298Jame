@@ -1,0 +1,16 @@
+#include <L298Jame.h>
+
+L298Jame motorControl(8, 9, 10, 12, 13, 11);
+
+void setup() {
+  Serial.begin(9600);
+}
+
+void loop() {
+  motorControl.setPWM(1, 128);  // Set fan 1 speed to 128 (forward)
+  delay(2000);
+  motorControl.setPWM(1, -128); // Set fan 1 speed to -128 (reverse)
+  delay(2000);
+  motorControl.setPWM(1, 0);    // Stop fan 1
+  delay(2000);
+}
