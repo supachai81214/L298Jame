@@ -35,7 +35,6 @@ void L298Jame::controlFan1(int speed) {
     }
 }
 
-// Control Fan 2
 void L298Jame::controlFan2(int speed) {
     if (speed > 0) {
         digitalWrite(in3fan2, HIGH);
@@ -52,15 +51,8 @@ void L298Jame::controlFan2(int speed) {
     }
 }
 
-// Set PWM for a specific fan with optional frequency control
-void L298Jame::setPWM(int fan, int speed, int frequency) {
-    if (frequency > 1000) {  // ใช้ความถี่สูงกว่า 1000Hz จะเข้าโหมด fast PWM
-        setSuperFastPWM(true, frequency);  // เปิดการควบคุมความถี่ที่เราป้อน
-    } else {
-        setSuperFastPWM(false, frequency); // ถ้าความถี่ต่ำกว่า 1000Hz ใช้ PWM ปกติ
-    }
-
-    // ตรวจสอบทิศทางการหมุนและปรับการควบคุมให้เหมาะสม
+// Set PWM for a specific fan
+void L298Jame::setPWM(int fan, int speed) {
     if (fan == 1) {
         controlFan1(speed);
     } else if (fan == 2) {
@@ -68,16 +60,15 @@ void L298Jame::setPWM(int fan, int speed, int frequency) {
     }
 }
 
-void L298Jame::setSuperFastPWM(bool enable, int frequency) {
+// Enable Super Fast PWM (using Timer1 for pins 9 and 10)
+void L298Jame::setSuperFastPWM(bool enable) {
     if (enable) {
-        // คำนวณค่า ICR1 ตามความถี่ที่ผู้ใช้ระบุ
-        long timerFreq = 16000000;  // ความถี่ของระบบ (16MHz)
-        long prescaler = 1;  // ใช้ prescaler = 1 เพื่อให้ความถี่สูงสุด
-        ICR1 = timerFreq / prescaler / frequency - 1;  // คำนวณค่า ICR1 ตามความถี่
-        TCCR1A = (1 << WGM10) | (1 << WGM11) | (1 << COM1A1) | (1 << COM1B1); 
-        TCCR1B = (1 << WGM12) | (1 << WGM13) | (1 << CS10);  // ตั้งค่า Timer1 ให้ทำงานที่ความถี่ที่กำหนด
+        // Configure Timer1 for Fast PWM mode with no prescaler
+        TCCR1A = (1 << WGM10) | (1 << WGM11) | (1 << COM1A1) | (1 << COM1B1);
+        TCCR1B = (1 << WGM12) | (1 << WGM13) | (1 << CS10); // Prescaler = 1 (31.25 kHz)
+        ICR1 = 255; // Set top value for 8-bit resolution
     } else {
-        // รีเซ็ต Timer1 กลับสู่การตั้งค่าปกติ
+        // Reset Timer1 to default configuration
         TCCR1A = 0;
         TCCR1B = 0;
     }
