@@ -1,5 +1,5 @@
 #ifndef L298Jame_H
-#define L298JAME_H
+#define L298Jame_H
 
 #include <Arduino.h>
 
@@ -9,8 +9,13 @@ class L298Jame {
     L298Jame(int pin_in1fan1, int pin_in2fan1, int pin_enfan1,
              int pin_in3fan2, int pin_in4fan2, int pin_enfan2);
 
-    // Set motor speed with optional frequency parameter
-    void setPWM(int fan, int speed, int frequency = 1000); // เพิ่ม frequency
+    // Set motor speed
+    void setPWM(int fan, int speed);
+
+    // Set motor speed with frequency control
+    void setPWM(int fan, int speed, int frequency = 1000);  // Default frequency 1000Hz
+
+    // Enable super fast PWM for high-frequency control
     void setSuperFastPWM(bool enable, int frequency);
 
   private:
